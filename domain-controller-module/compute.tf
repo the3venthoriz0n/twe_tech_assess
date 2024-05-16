@@ -34,19 +34,3 @@ resource "azurerm_windows_virtual_machine" "dc" {
     version   = "latest"
   }
 }
-
-# Custom Script Extension for Domain Controller Setup
-resource "azurerm_virtual_machine_extension" "dc_extension" {
-  count                = 2
-  name                 = "dc-extension-${count.index}"
-  virtual_machine_id   = element(azurerm_windows_virtual_machine.dc.*.id, count.index)
-  publisher            = "Microsoft.Compute"
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.10"
-
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "powershell Add-WindowsFeature AD-Domain-Services; Install-ADDSForest -DomainName '${var.domain_name}' -InstallDns -SafeModeAdministratorPassword (ConvertTo-SecureString '${var.admin_password}' -AsPlainText -Force) -Force"
-    }
-  SETTINGS
-}
