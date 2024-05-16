@@ -22,7 +22,7 @@ resource "azurerm_windows_virtual_machine" "dc" {
   network_interface_ids = [element(azurerm_network_interface.nic.*.id, count.index)]
 
   os_disk {
-    name                 = "${azurerm_windows_virtual_machine.dc.name}-OSDisk"
+    name                 = "OSDisk-${count.index}"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }

@@ -1,7 +1,6 @@
 # Define Variables
 variable "resource_group_name" {
   type    = string
-  default = "twe_terraform_rg"
 }
 
 variable "location" {

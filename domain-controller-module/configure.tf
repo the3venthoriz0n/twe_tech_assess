@@ -1,73 +1,73 @@
-# Disk Initialization
-resource "azurerm_virtual_machine_extension" "disk_initialization" {
-  count                = 2
-  name                 = "disk-initialization-${count.index}"
-  virtual_machine_id   = element(azurerm_windows_virtual_machine.dc.*.id, count.index)
-  publisher            = "Microsoft.Compute"
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.10"
+# # Disk Initialization
+# resource "azurerm_virtual_machine_extension" "disk_initialization" {
+#   count                = 2
+#   name                 = "disk-initialization-${count.index}"
+#   virtual_machine_id   = element(azurerm_windows_virtual_machine.dc.*.id, count.index)
+#   publisher            = "Microsoft.Compute"
+#   type                 = "CustomScriptExtension"
+#   type_handler_version = "1.10"
 
-  settings = jsonencode({
-    commandToExecute = <<EOT
-      # Get the list of available disks
-      $Disks = Get-Disk
+#   settings = jsonencode({
+#     commandToExecute = <<EOT
+#       # Get the list of available disks
+#       $Disks = Get-Disk
 
-      # Initialize and format each data disk
-      foreach ($Disk in $Disks) {
-          if ($Disk.Size -gt 0 -and $Disk.Size -lt 128000000000) { # Filter disks by size (adjust as needed)
-              $VolumeLabel = "DataDisk"
-              Initialize-Disk -Number $Disk.Number -PartitionStyle MBR -Confirm:$false
-              New-Partition -DiskNumber $Disk.Number -UseMaximumSize -AssignDriveLetter -DriveLetter F -Confirm:$false
-              Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel $VolumeLabel -Confirm:$false
-          }
-      }
-    EOT
-  })
-}
+#       # Initialize and format each data disk
+#       foreach ($Disk in $Disks) {
+#           if ($Disk.Size -gt 0 -and $Disk.Size -lt 128000000000) { # Filter disks by size (adjust as needed)
+#               $VolumeLabel = "DataDisk"
+#               Initialize-Disk -Number $Disk.Number -PartitionStyle MBR -Confirm:$false
+#               New-Partition -DiskNumber $Disk.Number -UseMaximumSize -AssignDriveLetter -DriveLetter F -Confirm:$false
+#               Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel $VolumeLabel -Confirm:$false
+#           }
+#       }
+#     EOT
+#   })
+# }
 
-#TODO change to point to F: drive
+# #TODO change to point to F: drive
 
-# Virtual Machine Extension for Domain Controller Setup
-resource "azurerm_virtual_machine_extension" "dc_extension" {
-  count                = 2
-  name                 = "dc-extension-${count.index}"
-  virtual_machine_id   = element(azurerm_windows_virtual_machine.dc.*.id, count.index)
-  publisher            = "Microsoft.Compute"
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.10"
+# # Virtual Machine Extension for Domain Controller Setup
+# resource "azurerm_virtual_machine_extension" "dc_extension" {
+#   count                = 2
+#   name                 = "dc-extension-${count.index}"
+#   virtual_machine_id   = element(azurerm_windows_virtual_machine.dc.*.id, count.index)
+#   publisher            = "Microsoft.Compute"
+#   type                 = "CustomScriptExtension"
+#   type_handler_version = "1.10"
 
-  settings = jsonencode({
-    commandToExecute = <<EOT
-    # Promote the domain controller as the first in a new forest
-    # Execute only for the first instance (count.index == 0)
+#   settings = jsonencode({
+#     commandToExecute = <<EOT
+#     # Promote the domain controller as the first in a new forest
+#     # Execute only for the first instance (count.index == 0)
 
-    if ($count.index -eq 0) {
-        Install-ADDSForest `
-        -DomainName '${var.domain_name}' `
-        -InstallDns `
-        -SafeModeAdministratorPassword (ConvertTo-SecureString '${var.admin_password}' -AsPlainText -Force) `
-        -Force `
-        -Confirm:$false
-    }
+#     if ($count.index -eq 0) {
+#         Install-ADDSForest `
+#         -DomainName '${var.domain_name}' `
+#         -InstallDns `
+#         -SafeModeAdministratorPassword (ConvertTo-SecureString '${var.admin_password}' -AsPlainText -Force) `
+#         -Force `
+#         -Confirm:$false
+#     }
 
-    if ($count.index -eq 1) {
-        Install-ADDSDomainController `
-        -DomainName "CONTOSO.com" `
-        -Credential (Get-Credential) `
-        -SafeModeAdministratorPassword (ConvertTo-SecureString '${var.admin_password}' -AsPlainText -Force) `
-        -Force `
-        -Confirm:$false `
-        -NoGlobalCatalog:$false `
-        -InstallDns:$true `
-        -NoRebootOnCompletion:$false `
-        -Path "F:\Windows\NTDS" `
-        -SysvolPath "F:\Windows\SYSVOL"
-    }
+#     if ($count.index -eq 1) {
+#         Install-ADDSDomainController `
+#         -DomainName "CONTOSO.com" `
+#         -Credential (Get-Credential) `
+#         -SafeModeAdministratorPassword (ConvertTo-SecureString '${var.admin_password}' -AsPlainText -Force) `
+#         -Force `
+#         -Confirm:$false `
+#         -NoGlobalCatalog:$false `
+#         -InstallDns:$true `
+#         -NoRebootOnCompletion:$false `
+#         -Path "F:\Windows\NTDS" `
+#         -SysvolPath "F:\Windows\SYSVOL"
+#     }
 
-      # Change the paths to point to the F: drive
-      # Perform this manually
-    EOT
-  })
-}
+#       # Change the paths to point to the F: drive
+#       # Perform this manually
+#     EOT
+#   })
+# }
 
 
