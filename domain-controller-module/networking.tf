@@ -1,5 +1,23 @@
+# Create VNet Peering from "vnet" to "Candidate-2731-vnet"
+resource "azurerm_virtual_network_peering" "vnet_to_candidate" {
+  name                         = "vnet-to-candidate-peering"
+  resource_group_name          = var.resource_group_name
+  virtual_network_name         = azurerm_virtual_network.vnet.name
+  remote_virtual_network_id    = azurerm_virtual_network.candidate.id
+  allow_virtual_network_access = false # disallow internet access into "vnet"
+}
+
+# Create VNet Peering from "Candidate-2731-vnet" to "vnet"
+resource "azurerm_virtual_network_peering" "candidate_to_vnet" {
+  name                         = "candidate-to-vnet-peering"
+  resource_group_name          = var.resource_group_name
+  virtual_network_name         = "Candidate-2731-vnet"
+  remote_virtual_network_id    = azurerm_virtual_network.vnet.id
+  allow_virtual_network_access = true # allow communication between VNets
+}
+
 # Virtual Network
-resource "azurerm_virtual_network" "vnet" {
+resource "azurerm_virtual_network" "dc_vnet" {
   name                = var.vnet_name
   address_space       = var.vnet_address_space
   location            = var.location
@@ -60,7 +78,7 @@ resource "azurerm_network_security_group" "nsg" {
 # Network Interface
 resource "azurerm_network_interface" "nic" {
   count               = 2
-  name                = "nic-${count.index}"
+  name                = "${azurerm_windows_virtual_machine[count.index].name}-nic-${count.index}"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -70,3 +88,5 @@ resource "azurerm_network_interface" "nic" {
     private_ip_address_allocation = "Dynamic"
   }
 }
+
+
