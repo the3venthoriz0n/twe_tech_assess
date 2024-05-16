@@ -1,13 +1,3 @@
-# terraform {
-#   backend "azurerm" {
-#     resource_group_name   = "<resource_group_name>"
-#     storage_account_name  = "<storage_account_name>"
-#     container_name        = "<container_name>"
-#     key                   = "terraform.tfstate"
-#   }
-# }
-
-#local backend due to RBAC limitations in test env
 
 # Provider Configuration
 provider "azurerm" {
@@ -15,12 +5,13 @@ provider "azurerm" {
   skip_provider_registration = true
 }
 
-#using local backend because of scope RBAC access limitations
 
-# Resource Group
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
+
+
+module "domain_controllers" {
+  source = "_Education/Terraform/twe_tech_assess/domain-controller-module"
+
+  # Input Variables
+  domain_name = var.domain_name
+  
 }
-
-
