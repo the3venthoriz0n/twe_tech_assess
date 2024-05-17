@@ -246,7 +246,7 @@ resource "azurerm_virtual_network_peering" "dc_vnet_to_existing" {
 
 # Create VNet Peering from "Candidate-2731-vnet" to "dc_vnet"
 resource "azurerm_virtual_network_peering" "existing_to_dc_vnet" {
-  name                         = "candidate-to-vnet-peering"
+  name                         = "candidate-to-dc_vnet-peering"
   resource_group_name          = var.resource_group_name
   virtual_network_name         = data.azurerm_virtual_network.existing_vnet.name
   remote_virtual_network_id    = azurerm_virtual_network.dc_vnet.id

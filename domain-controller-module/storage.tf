@@ -8,7 +8,7 @@ resource "azurerm_managed_disk" "dc_data_disk" {
   disk_size_gb         = var.data_disk_size  # Adjust the size of the disk as needed
 }
 
-resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attatch" {
+resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attach" {
   count               = 2
   managed_disk_id    = azurerm_managed_disk.dc_data_disk[count.index].id
   virtual_machine_id = azurerm_windows_virtual_machine.dc[count.index].id
@@ -17,7 +17,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attatch" {
 }
 
 
-#Enable encryption
+# # Enable encryption
 
 # data "azurerm_client_config" "current" {}
 
@@ -63,6 +63,8 @@ resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attatch" {
 #   }
 # }
 
+
+# # Cannot create due to subscription limitation
 # resource "azurerm_key_vault_access_policy" "example-disk" {
 #   key_vault_id = azurerm_key_vault.dc_vault.id
 
@@ -115,19 +117,24 @@ resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attatch" {
 #   virtual_machine_id         = azurerm_windows_virtual_machine.dc[count.index].id
 #   publisher                  = "Microsoft.Azure.Security"
 #   type                       = "AzureDiskEncryption"
-#   type_handler_version       = 2.2
+#   type_handler_version       = "2.2"
 #   auto_upgrade_minor_version = true
 
 #   settings = <<SETTINGS
 #     {
 #         "EncryptionOperation": "EnableEncryption",
 #         "KeyVaultURL": "${azurerm_key_vault.dc_vault.vault_uri}",
-#         "KeyVaultResourceId": "${azurerm_key_vault.dc_vault.id}",                   
-#         "KeyEncryptionKeyURL": "${azurerm_key_vault_key.dc_key.uri}",                  
+#         "KeyVaultResourceId": "${azurerm_key_vault.dc_vault.id}",
+#         "KeyEncryptionKeyURL": "https://${azurerm_key_vault.dc_vault.name}.vault.azure.net/keys/${azurerm_key_vault_key.dc_key.name}/${azurerm_key_vault_key.dc_key.versionless_id}",
 #         "KeyEncryptionAlgorithm": "RSA-OAEP",
 #         "VolumeType": "All"
 #     }
 # SETTINGS
 
-  
+#   depends_on = [
+#     azurerm_key_vault_access_policy.example-disk,
+#     azurerm_role_assignment.example-disk,
+#   ]
 # }
+# #KeyEncryptionKeyUrl to be in format https://<vaultName>.vault.azure.net/keys/<keyName>/<keyVersion> 
+# #"KeyEncryptionKeyURL":"https://Candidate-2731-keyvault.vault.azure.net/keys/Candidate-2731-des-key/https://candidate-2731-keyvault.vault.azure.net/keys/Candidate-2731-des-key/3d58c487086a46768e7a4cb2211fd07d",

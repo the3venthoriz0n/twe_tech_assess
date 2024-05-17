@@ -5,7 +5,7 @@ resource "null_resource" "run_az_cli" {
   provisioner "local-exec" {
     on_failure = continue
     command = <<EOT
-      if [ "${var.configure}" == true ]; then
+      if [ ${var.configure} == true ]; then
           powershell -File "${path.module}/azcli_configure.ps1" `
           -ADAdminPassword ${var.ad_admin_password} `
           -Location ${var.location} `
