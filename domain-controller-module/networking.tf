@@ -28,39 +28,6 @@ resource "azurerm_subnet" "dc_subnet" {
 }
 
 
-# # Config for existing nsg
-# resource "azurerm_network_security_group" "existing_nsg" {
-#   name                = "Candidate-2731-nsg"
-#   location            = "West US 3"
-#   resource_group_name = var.resource_group_name
-
-
-#   security_rule {
-#     name                       = "TF_AllowRDP"
-#     priority                   = 1000
-#     direction                  = "Inbound"
-#     access                     = "Allow"
-#     protocol                   = "Tcp"
-#     source_port_range          = "*"
-#     destination_port_range     = "3389"
-#     source_address_prefix      = "71.146.186.88"
-#     destination_address_prefix = "*"
-#   }
-
-#   security_rule {
-#     name                       = "TF_AllowPing"
-#     priority                   = 1001
-#     direction                  = "Inbound"
-#     access                     = "Allow"
-#     protocol                   = "Icmp"
-#     source_port_range          = "*"
-#     destination_port_range     = "*"
-#     source_address_prefix      = "VirtualNetwork"
-#     destination_address_prefix = "VirtualNetwork"
-#   }
-
-# }
-
 # dc Network Security Group
 resource "azurerm_network_security_group" "dc_nsg" {
   name                = var.nsg_name
@@ -142,16 +109,3 @@ resource "azurerm_network_interface_security_group_association" "nic_nsg_associa
   network_security_group_id = azurerm_network_security_group.dc_nsg.id
 }
 
-
-# # Existing NSG to subnet association
-# resource "azurerm_subnet_network_security_group_association" "exist_sub_nsg_association" {
-#   subnet_id                 = data.azurerm_subnet.existing_snet.id
-#   network_security_group_id = azurerm_network_security_group.existing_nsg.id
-# }
-
-# # NSG to nic association
-# resource "azurerm_network_interface_security_group_association" "nic-nsg-association" {
-#   count                     = 2
-#   network_interface_id      = azurerm_network_interface.nic[count.index].id
-#   network_security_group_id = azurerm_network_security_group.dc_nsg.id
-# }
