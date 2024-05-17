@@ -66,3 +66,15 @@ variable "nsg_name" {
   type    = string
   default = "nsg"
 }
+
+variable "configure_ad" {
+  type  = bool
+  default = false
+  description = "Do you want Terraform to run AD configuration steps?"
+}
+
+variable "configure_vm" {
+  type  = bool
+  default = false
+  description = "Do you want Terraform to run VM configuration steps?"
+}
