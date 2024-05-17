@@ -12,7 +12,7 @@ resource "azurerm_availability_set" "twe_dc" {
 # Virtual Machines
 resource "azurerm_windows_virtual_machine" "dc" {
   count                 = 2
-  name                  = "${var.resource_group_name}-tf-dc-${count.index}"
+  name                  = "${var.vm_name_prefix}-tf-dc-${count.index}" # Must be 15 char or less
   availability_set_id   = azurerm_availability_set.twe_dc.id
   resource_group_name   = var.resource_group_name
   location              = var.location

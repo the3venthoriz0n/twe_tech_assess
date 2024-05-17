@@ -92,7 +92,8 @@ resource "azurerm_network_interface" "nic" {
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Static" 
     # Use cidrhost built in function to calculate ip based on prefix, starting at .10
-    private_ip_address            = "${cidrhost(var.subnet_address_prefixes[0], count.index + 10)}" 
+    private_ip_address            = "${cidrhost(var.subnet_address_prefixes[0], count.index + 10)}"
+    network_security_group_id     = azurerm_network_security_group.nsg.id 
   }
 
 }

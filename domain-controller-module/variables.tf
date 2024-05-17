@@ -28,6 +28,11 @@ variable "vm_size" {
   default = "Standard_B2s"
 }
 
+variable "vm_name_prefix" {
+  type    = string
+  default = ""
+}
+
 variable "availability_set_name" {
   type    = string
   default = "twe_dc_availability_set"

@@ -27,6 +27,33 @@
 
 # #TODO change to point to F: drive
 
+
+# # Define Azure Virtual Machine Extension for Disk Encryption
+# resource "azurerm_virtual_machine_extension" "disk_encryption_extension" {
+#   name                 = "diskEncryption"
+#   virtual_machine_id   = azurerm_windows_virtual_machine.example.id
+#   publisher            = "Microsoft.Azure.Security"
+#   type                 = "AzureDiskEncryption"
+#   type_handler_version = "2.2"
+
+#   settings = <<SETTINGS
+#     {
+#       "encryptionSettings": {
+#         "diskSettings": [
+#           {
+#             "diskEncryptionKeyVaultUrl": "${var.key_vault_url}",
+#             "keyEncryptionKeyUrl": "${var.key_encryption_key_url}",
+#             "keyVaultResourceId": "${azurerm_key_vault.example.id}"
+#           }
+#         ]
+#       }
+#     }
+# SETTINGS
+# }
+
+
+
+
 # # Virtual Machine Extension for Domain Controller Setup
 # resource "azurerm_virtual_machine_extension" "dc_extension" {
 #   count                = 2

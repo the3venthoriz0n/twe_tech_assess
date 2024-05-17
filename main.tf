@@ -18,6 +18,10 @@ variable "resource_group_name" {
   default     = "Candidate-2731"
 }
 
+locals {
+  resource_group_number = regex("[0-9]+", var.resource_group_name)
+}
+
 
 module "domain_controllers" {
   source = "./domain-controller-module"
@@ -26,6 +30,7 @@ module "domain_controllers" {
 
   resource_group_name     = "Candidate-2731" #existing resource group
   admin_password          = var.admin_password
+  vm_name_prefix          = local.resource_group_number
   availability_set_name   = "${var.resource_group_name}-tf-avs"
   domain_name             = "twe-tech-assess.local"
   vnet_name               = "${var.resource_group_name}-tf-vnet"
