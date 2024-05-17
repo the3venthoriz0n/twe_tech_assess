@@ -18,6 +18,11 @@ variable "admin_password" {
   sensitive = true
 }
 
+variable "ad_admin_password" {
+  type      = string
+  sensitive = true
+}
+
 variable "data_disk_size" {
   type    = number
   default = 20
