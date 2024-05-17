@@ -19,7 +19,7 @@ resource "azurerm_virtual_network" "dc_vnet" {
 }
 
 # Subnet
-resource "azurerm_subnet" "subnet" {
+resource "azurerm_subnet" "dc_subnet" {
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.dc_vnet.name
@@ -103,7 +103,7 @@ resource "azurerm_network_interface" "nic" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.subnet.id
+    subnet_id                     = azurerm_subnet.dc_subnet.id
     private_ip_address_allocation = "Static" 
     # Use cidrhost built in function to calculate ip based on prefix, starting at .10
     private_ip_address            = "${cidrhost(var.subnet_address_prefixes[0], count.index + 10)}"
@@ -131,7 +131,7 @@ resource "azurerm_virtual_network_peering" "existing_to_dc_vnet" {
 
 # NSG to subnet association
 resource "azurerm_subnet_network_security_group_association" "sub_nsg_association" {
-  subnet_id                 = azurerm_subnet.subnet.id
+  subnet_id                 = azurerm_subnet.dc_subnet.id
   network_security_group_id = azurerm_network_security_group.dc_nsg.id
 }
 
