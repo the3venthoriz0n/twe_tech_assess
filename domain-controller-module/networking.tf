@@ -58,6 +58,163 @@ resource "azurerm_network_security_group" "dc_nsg" {
     destination_address_prefix = "VirtualNetwork"
   }
 
+  security_rule {
+   name                       = "TF_W32Time"
+   priority                   = 1010
+   direction                  = "Inbound"
+   access                     = "Allow"
+   protocol                   = "Udp"
+   source_port_range          = "49152-65535"
+   destination_port_range     = "123"
+   source_address_prefix      = "VirtualNetwork"
+   destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_RPC"
+  priority                   = 1011
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "135"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_Kerberos-ChangePassword"
+  priority                   = 1012
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "464"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_RPC-LSA-SAM-NetLogon"
+  priority                   = 1013
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "49152-65535"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_LDAP"
+  priority                   = 1014
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "389"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_LDAP-SSL"
+  priority                   = 1015
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "636"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_LDAP-GC"
+  priority                   = 1016
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "3268"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_LDAP-GC-SSL"
+  priority                   = 1017
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "3269"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_DNS"
+  priority                   = 1018
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "53"
+  destination_port_range     = "53"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_FRS-RPC"
+  priority                   = 1019
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "49152-65535"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_Kerberos"
+  priority                   = 1020
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "88"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_SMB"
+  priority                   = 1021
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "445"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+security_rule {
+  name                       = "TF_DFSR-RPC"
+  priority                   = 1022
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "49152-65535"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+}
+
+
 
 }
 
