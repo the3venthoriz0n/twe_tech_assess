@@ -12,7 +12,7 @@ resource "azurerm_availability_set" "twe_dc" {
 # Virtual Machines
 resource "azurerm_windows_virtual_machine" "dc" {
   count                 = 2
-  name                  = "dc-${count.index}"
+  name                  = "${var.resource_group_name}-tf-dc-${count.index}"
   availability_set_id   = azurerm_availability_set.twe_dc.id
   resource_group_name   = var.resource_group_name
   location              = var.location
@@ -22,7 +22,7 @@ resource "azurerm_windows_virtual_machine" "dc" {
   network_interface_ids = [element(azurerm_network_interface.nic.*.id, count.index)]
 
   os_disk {
-    name                 = "OSDisk-${count.index}"
+    name                 = "${var.resource_group_name}-tf-OSDisk-${count.index}"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }

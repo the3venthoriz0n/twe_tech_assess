@@ -1,18 +1,23 @@
-# Create VNet Peering from "vnet" to "Candidate-2731-vnet"
-resource "azurerm_virtual_network_peering" "vnet_to_candidate" {
-  name                         = "vnet-to-candidate-peering"
+data "azurerm_virtual_network" "existing_vnet" {
+  name                = "${var.resource_group_name}-vnet"
+  resource_group_name = var.resource_group_name
+}
+
+# Create VNet Peering from "dc_vnet" to "Candidate-2731-vnet"
+resource "azurerm_virtual_network_peering" "dc_vnet_to_existing" {
+  name                         = "dc_vnet-to-candidate-peering"
   resource_group_name          = var.resource_group_name
-  virtual_network_name         = azurerm_virtual_network.vnet.name
-  remote_virtual_network_id    = azurerm_virtual_network.candidate.id
+  virtual_network_name         = azurerm_virtual_network.dc_vnet.name
+  remote_virtual_network_id    = data.azurerm_virtual_network.existing_vnet.id
   allow_virtual_network_access = false # disallow internet access into "vnet"
 }
 
-# Create VNet Peering from "Candidate-2731-vnet" to "vnet"
-resource "azurerm_virtual_network_peering" "candidate_to_vnet" {
+# Create VNet Peering from "Candidate-2731-vnet" to "dc_vnet"
+resource "azurerm_virtual_network_peering" "existing_to_dc_vnet" {
   name                         = "candidate-to-vnet-peering"
   resource_group_name          = var.resource_group_name
-  virtual_network_name         = "Candidate-2731-vnet"
-  remote_virtual_network_id    = azurerm_virtual_network.vnet.id
+  virtual_network_name         = data.azurerm_virtual_network.existing_vnet.name
+  remote_virtual_network_id    = azurerm_virtual_network.dc_vnet.id
   allow_virtual_network_access = true # allow communication between VNets
 }
 
@@ -28,7 +33,7 @@ resource "azurerm_virtual_network" "dc_vnet" {
 resource "azurerm_subnet" "subnet" {
   name                 = var.subnet_name
   resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
+  virtual_network_name = azurerm_virtual_network.dc_vnet.name
   address_prefixes     = var.subnet_address_prefixes
 }
 
@@ -78,15 +83,18 @@ resource "azurerm_network_security_group" "nsg" {
 # Network Interface
 resource "azurerm_network_interface" "nic" {
   count               = 2
-  name                = "${azurerm_windows_virtual_machine[count.index].name}-nic-${count.index}"
+  name                = "${var.resource_group_name}-tf-nic-${count.index}"
   location            = var.location
   resource_group_name = var.resource_group_name
 
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static" 
+    # Use cidrhost built in function to calculate ip based on prefix, starting at .10
+    private_ip_address            = "${cidrhost(var.subnet_address_prefixes[0], count.index + 10)}" 
   }
+
 }
 
 
