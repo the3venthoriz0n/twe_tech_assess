@@ -20,6 +20,7 @@ resource "azurerm_windows_virtual_machine" "dc" {
   admin_username        = var.admin_username
   admin_password        = var.admin_password
   network_interface_ids = [element(azurerm_network_interface.nic.*.id, count.index)]
+  #encryption_at_host_enabled = true # not enabled for subscription
 
   os_disk {
     name                 = "${var.resource_group_name}-tf-OSDisk-${count.index}"

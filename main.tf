@@ -38,7 +38,7 @@ module "domain_controllers" {
   subnet_name             = "${var.resource_group_name}-tf-snet"
   subnet_address_prefixes = ["10.2.1.0/24"]
   nsg_name                = "${var.resource_group_name}-tf-nsg"
-  configure_ad             = false
-  configure_vm              = false
+  configure_ad            = true
+  configure_vm            = true
 
 }

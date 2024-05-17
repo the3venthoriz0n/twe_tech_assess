@@ -3,13 +3,14 @@ resource "null_resource" "run_az_cli" {
   count = 2
 
   provisioner "local-exec" {
+    on_failure = continue
     command = <<EOT
       if [ ${var.configure_vm} == true ]; then
 
         # Run configure_all.ps1
         az vm run-command invoke \
           --resource-group ${var.resource_group_name} \
-          --name ${azurerm_virtual_machine.dc[count.index].name} \
+          --name ${azurerm_windows_virtual_machine.dc[count.index].name} \
           --command-id RunPowerShellScript \
           --scripts "${path.module}/configure_all.ps1"
       fi
@@ -27,19 +28,18 @@ resource "null_resource" "run_az_cli" {
       # Run the chosen script
       az vm run-command invoke \
         --resource-group ${var.resource_group_name} \
-        --name ${azurerm_virtual_machine.dc[count.index].name} \
+        --name ${azurerm_windows_virtual_machine.dc[count.index].name} \
         --command-id RunPowerShellScript \
-        --scripts "${script_path} \
+        --scripts $script_path \
         --parameters '{
           "DomainName: "${var.domain_name}",
           "AdminPassword: "${var.admin_password}"
         }'
      fi
     EOT
-
-    # Ensure the VM is created before running the command
-    depends_on = [
-      azurerm_virtual_machine.dc[*]
-    ]
   }
+    # Ensure the VM is created before running the command
+  depends_on = [
+    azurerm_windows_virtual_machine.dc
+  ]
 }

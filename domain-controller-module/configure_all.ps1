@@ -22,3 +22,6 @@ Restart-Service w32time
 
 # Check NTP Configuration
 #w32tm /query /status
+
+# Set automatic timezone
+Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3 
