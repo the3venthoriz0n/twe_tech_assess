@@ -7,7 +7,7 @@ provider "azurerm" {
 
 
 variable "admin_password" {
-  description = "Password for dc admin"
+  description = "Local password for admin"
   type        = string
   sensitive   = true
 }

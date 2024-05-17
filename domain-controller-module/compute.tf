@@ -1,6 +1,6 @@
 
 # Availability Set
-resource "azurerm_availability_set" "twe_dc" {
+resource "azurerm_availability_set" "dc_avs" {
   name                         = var.availability_set_name
   location                     = var.location
   resource_group_name          = var.resource_group_name
@@ -13,7 +13,7 @@ resource "azurerm_availability_set" "twe_dc" {
 resource "azurerm_windows_virtual_machine" "dc" {
   count                 = 2
   name                  = "${var.vm_name_prefix}-tf-dc-${count.index}" # Must be 15 char or less
-  availability_set_id   = azurerm_availability_set.twe_dc.id
+  availability_set_id   = azurerm_availability_set.dc_avs.id
   resource_group_name   = var.resource_group_name
   location              = var.location
   size                  = var.vm_size
