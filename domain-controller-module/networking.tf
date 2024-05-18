@@ -30,14 +30,10 @@ resource "azurerm_subnet" "dc_subnet" {
 
 # Vnet dns servers
 resource "azurerm_virtual_network_dns_servers" "dc_dns" {
-  count             = 2
   virtual_network_id = azurerm_virtual_network.dc_vnet.id
-  dns_servers        = [azurerm_windows_virtual_machine.dc[count.index].private_ip_address]
-
-  # dns_servers = [
-  #   azurerm_windows_virtual_machine.dc[0].private_ip_address,
-  #   azurerm_windows_virtual_machine.dc[1].private_ip_address
-  # ]
+  dns_servers = [
+    for vm in azurerm_windows_virtual_machine.dc : vm.private_ip_address
+  ]
 
   depends_on = [azurerm_windows_virtual_machine.dc]
 }
