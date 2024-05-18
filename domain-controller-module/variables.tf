@@ -82,3 +82,9 @@ variable "configure" {
   default = false
   description = "Do you want Terraform to run AD and VM configuration steps?"
 }
+
+variable "create_dns" {
+  type  = bool
+  default = false
+  description = "Create a dns delegation on vm?"
+}

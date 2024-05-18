@@ -1,6 +1,4 @@
-
-
-# Custom Script Extension for Domain Controller Setup
+# Virtual Machine Extension for Domain Controller Setup
 resource "azurerm_virtual_machine_extension" "dc_extension" {
   count                = 2
   name                 = "dc-extension-${count.index}"
@@ -9,19 +7,71 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "powershell -ExecutionPolicy Unrestricted New-Item -Path '$env:USERPROFILE\Desktop\example.txt' -ItemType File"
+  settings = jsonencode({
+    commandToExecute = <<EOT
+
+
+    # Set NTP Server
+    $ntpServer = "time.windows.com"
+
+    # Configure NTP Settings
+    w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
+
+    # Restart the Windows Time Service
+    Restart-Service w32time
+
+    # Set automatic timezone
+    Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
+
+
+    powershell -ExecutionPolicy Unrestricted `
+
+    # Add Data Disks and Initialize Disks
+    Initialize-Disk -Number 2 -PartitionStyle MBR -PassThru | `
+      New-Partition -DriveLetter F -UseMaximumSize | `
+      Format-Volume -FileSystem NTFS -NewFileSystemLabel "DataDisk"
+
+
+
+    if ($count.index -eq 0){
+
+        # Install AD DS on the first VM and create a new forest if DomainController is "2731-tf-dc-0"
+
+        Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+        Import-Module ADDSDeployment
+        Install-ADDSForest `
+        -DomainName ${var.domain_name} `
+        -CreateDnsDelegation:${var.create_dns} -DatabasePath "F:\Windows\NTDS" `
+        -DomainMode "7" -DomainNetbiosName "TWE" -ForestMode "7" `
+        -InstallDns:$true -LogPath "F:\Windows\NTDS" `
+        -NoRebootOnCompletion:$true -SysvolPath "F:\Windows\SYSVOL" `
+        -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString ${var.ad_admin_password} -AsPlainText -Force)
+
     }
-  SETTINGS
 
-  # Ensure the VMs are created before running the command
-  depends_on = [
-    azurerm_windows_virtual_machine.dc
-  ]
+    elseif($count.index -eq 1){
+
+      # Install AD DS on the second DC and join the existing forest
+
+      Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+      Import-Module ADDSDeployment
+      Install-ADDSDomainController `
+      -DomainName ${var.domain_name} `
+      -CreateDnsDelegation:${var.create_dns} `
+      -Credential (New-Object System.Management.Automation.PSCredential("TWE\Administrator", (ConvertTo-SecureString ${var.ad_admin_password} -AsPlainText -Force))) `
+      -DatabasePath "F:\Windows\NTDS" `
+      -LogPath "F:\Windows\NTDS" -SysvolPath "F:\Windows\SYSVOL" `
+      -NoRebootOnCompletion:$true -Force:$true
+
+
+    }
+  
+    # Reboot vms
+    Restart-Computer -Force
+
+    EOT
+  })
 }
-
-
 
 
 # # Virtual Machine Extension for Domain Controller Setup
@@ -67,44 +117,3 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
 #   })
 # }
 
-
-
-# resource "azurerm_virtual_machine_extension" "software" {
-#   name                 = "install-software"
-#   resource_group_name  = azurerm_resource_group.azrg.name
-#   virtual_machine_id   = azurerm_virtual_machine.vm.id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {
-#      "commandToExecute": "powershell -encodedCommand ${textencodebase64(file("install.ps1"), "UTF-16LE")}"
-#   }
-#   SETTINGS
-# }
-
-
-
-# resource "null_resource" "run_az_cli" {
-#   count = var.configure ? 2 : 0 # If configure is set to true, run 
-
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       az vm run-command invoke \
-#         --resource-group "${var.resource_group_name}" \
-#         --name "${azurerm_windows_virtual_machine.dc[count.index].name}" \
-#         --command-id RunPowerShellScript \
-#         --scripts '@${path.module}/azcli_configure.ps1' \
-#         --parameters \
-#         "ADAdminPassword='${var.ad_admin_password}'" \
-#         "DomainController='${azurerm_windows_virtual_machine.dc[count.index].name}'" \
-#         "ADForestName='${var.domain_name}'"
-#     EOT
-#   }
-
-#   # Ensure the VMs are created before running the command
-#   depends_on = [
-#     azurerm_windows_virtual_machine.dc
-#   ]
-# }
