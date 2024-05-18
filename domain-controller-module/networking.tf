@@ -275,5 +275,6 @@ security_rule {
   destination_address_prefix = "VirtualNetwork"
 }
 
+depends_on = [ azurerm_subnet.dc_subnet ]
 
 }

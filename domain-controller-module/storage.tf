@@ -20,7 +20,8 @@ resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attach" {
 
 # Create a storage account
 resource "azurerm_storage_account" "sa" {
-  name                     = "${var.resource_group_name}-tf-sa"
+  count                = var.configure ? 1 : 0
+  name                     = lower("Candidate2731tfsa")
   location             = var.location
   resource_group_name  = var.resource_group_name
   account_tier             = "Standard"
@@ -29,18 +30,20 @@ resource "azurerm_storage_account" "sa" {
 
 # Create a blob container
 resource "azurerm_storage_container" "sc" {
-  name                  = "${var.resource_group_name}-tf-sc"
-  storage_account_name  = azurerm_storage_account.sa.name
+  count                = var.configure ? 1 : 0
+  name                  = lower("Candidate2731tfsc")
+  storage_account_name  = azurerm_storage_account.sa[count.index].name
   container_access_type = "private"
 }
 
 # Upload PowerShell scripts to the blob container
 resource "azurerm_storage_blob" "script1" {
+  count                = var.configure ? 1 : 0
   name                   = "test.ps1"
-  storage_account_name   = azurerm_storage_account.sa.name
-  storage_container_name = azurerm_storage_container.sc.name
+  storage_account_name   = azurerm_storage_account.sa[count.index].name
+  storage_container_name = azurerm_storage_container.sc[count.index].name
   type                   = "Block"
-  source                 = "${path.module}/test.ps1"
+  source                 = "${path.module}/scripts/test.ps1"
 }
 
 
