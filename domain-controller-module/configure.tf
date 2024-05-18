@@ -11,22 +11,21 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
     commandToExecute = <<EOT
 
 
-    # Set NTP Server
+  
     $ntpServer = "time.windows.com"
 
-    # Configure NTP Settings
+
     w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
 
-    # Restart the Windows Time Service
+
     Restart-Service w32time
 
-    # Set automatic timezone
     Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
 
 
     powershell -ExecutionPolicy Unrestricted `
 
-    # Add Data Disks and Initialize Disks
+
     Initialize-Disk -Number 2 -PartitionStyle MBR -PassThru | `
       New-Partition -DriveLetter F -UseMaximumSize | `
       Format-Volume -FileSystem NTFS -NewFileSystemLabel "DataDisk"
@@ -35,7 +34,7 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
 
     if ($count.index -eq 0){
 
-        # Install AD DS on the first VM and create a new forest if DomainController is "2731-tf-dc-0"
+
 
         Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
         Import-Module ADDSDeployment
@@ -51,7 +50,7 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
 
     elseif($count.index -eq 1){
 
-      # Install AD DS on the second DC and join the existing forest
+
 
       Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
       Import-Module ADDSDeployment
@@ -66,12 +65,16 @@ resource "azurerm_virtual_machine_extension" "dc_extension" {
 
     }
   
-    # Reboot vms
+
     Restart-Computer -Force
 
     EOT
   })
 }
+
+
+
+
 
 
 # # Virtual Machine Extension for Domain Controller Setup
