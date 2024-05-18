@@ -17,6 +17,35 @@ resource "azurerm_virtual_machine_data_disk_attachment" "dc_disk_attach" {
 }
 
 
+
+# Create a storage account
+resource "azurerm_storage_account" "sa" {
+  name                     = "${var.resource_group_name}-tf-sa"
+  location             = var.location
+  resource_group_name  = var.resource_group_name
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+# Create a blob container
+resource "azurerm_storage_container" "sc" {
+  name                  = "${var.resource_group_name}-tf-sc"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+}
+
+# Upload PowerShell scripts to the blob container
+resource "azurerm_storage_blob" "script1" {
+  name                   = "test.ps1"
+  storage_account_name   = azurerm_storage_account.sa.name
+  storage_container_name = azurerm_storage_container.sc.name
+  type                   = "Block"
+  source                 = "${path.module}/test.ps1"
+}
+
+
+
+
 # # Enable encryption
 
 # data "azurerm_client_config" "current" {}

@@ -88,3 +88,8 @@ variable "create_dns" {
   default = false
   description = "Create a dns delegation on vm?"
 }
+
+variable "ntp_server" {
+  type  = string
+  default = "time.windows.com"
+}
