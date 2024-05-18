@@ -24,6 +24,7 @@ resource "azurerm_windows_virtual_machine" "dc" {
 
   os_disk {
     name                 = "${var.resource_group_name}-tf-OSDisk-${count.index}"
+    #disk_size_gb         = var.os_disk_size
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }

@@ -23,6 +23,11 @@ variable "ad_admin_password" {
   sensitive = true
 }
 
+variable "os_disk_size" {
+  type    = number
+  default = 120
+}
+
 variable "data_disk_size" {
   type    = number
   default = 20
