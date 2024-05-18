@@ -3,14 +3,15 @@ resource "null_resource" "run_az_cli" {
 
   provisioner "local-exec" {
     command = <<EOT
-      powershell -File "X:\domain-controller-module\azcli_configure_hardcode.ps1" `
-        -ADAdminPassword "${var.ad_admin_password}" `
-        -Location "${var.location}" `
-        -ResourceGroupName "${var.resource_group_name}" `
-        -DomainController1 "${azurerm_windows_virtual_machine.dc[0].name}" `
-        -DomainController2 "${azurerm_windows_virtual_machine.dc[1].name}" `
-        -DomainControllerAll "${azurerm_windows_virtual_machine.dc[count.index].name}" `
-        -ADForestName "${var.domain_name}"
+      az vm run-command invoke \
+        --resource-group "${var.resource_group_name}" \
+        --name "${azurerm_windows_virtual_machine.dc[count.index].name}" \
+        --command-id RunPowerShellScript \
+        --scripts '@${path.module}/azcli_configure.ps1' \
+        --parameters \
+        "ADAdminPassword='${var.ad_admin_password}'" \
+        "DomainController='${azurerm_windows_virtual_machine.dc[count.index].name}'" \
+        "ADForestName='${var.domain_name}'"
     EOT
   }
 

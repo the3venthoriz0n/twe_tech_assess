@@ -76,3 +76,7 @@ az vm restart -g "Candidate-2731" -n "2731-tf-dc-0"
 
 # Reboot vms
 az vm restart -g "Candidate-2731" -n "2731-tf-dc-1"
+
+
+# ## Update the virtual network with IP address of the DNS server. ## 
+# az network vnet update --resource-group "Candidate-2731" --name "Candidate-2731-tf-vnet" --dns-servers 10.0.0.10
