@@ -17,18 +17,19 @@ az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-1"
 
 
 
+
 # Install AD DS on the first VM and create a new forest
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-0" --command-id RunPowerShellScript --scripts '
     Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
     Import-Module ADDSDeployment
-    Install-ADDSForest -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$true -DatabasePath "F:\Windows\NTDS" -DomainMode "7" -DomainNetbiosName "TWE" -ForestMode "7" -InstallDns:$true -LogPath "F:\Windows\NTDS" -NoRebootOnCompletion:$true -SysvolPath "F:\Windows\SYSVOL" -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString "changeMe123!@#" -AsPlainText -Force)
+    Install-ADDSForest -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$false -DatabasePath "F:\Windows\NTDS" -DomainMode "7" -DomainNetbiosName "TWE" -ForestMode "7" -InstallDns:$true -LogPath "F:\Windows\NTDS" -NoRebootOnCompletion:$true -SysvolPath "F:\Windows\SYSVOL" -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString "changeMe123!@#" -AsPlainText -Force)
 '
 
 # Install AD DS on the second VM and join the existing forest
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-1" --command-id RunPowerShellScript --scripts '
     Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
     Import-Module ADDSDeployment
-    Install-ADDSDomainController -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$true -Credential (New-Object System.Management.Automation.PSCredential("TWE\Administrator", (ConvertTo-SecureString "changeMe123!@#" -AsPlainText -Force))) -DatabasePath "F:\Windows\NTDS" -LogPath "F:\Windows\NTDS" -SysvolPath "F:\Windows\SYSVOL" -NoRebootOnCompletion:$true -Force:$true
+    Install-ADDSDomainController -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$false -Credential (New-Object System.Management.Automation.PSCredential("TWE\Administrator", (ConvertTo-SecureString "changeMe123!@#" -AsPlainText -Force))) -DatabasePath "F:\Windows\NTDS" -LogPath "F:\Windows\NTDS" -SysvolPath "F:\Windows\SYSVOL" -NoRebootOnCompletion:$true -Force:$true
 '
 
 
