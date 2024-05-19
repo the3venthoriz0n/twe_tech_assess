@@ -83,6 +83,12 @@ variable "configure" {
   description = "Do you want Terraform to run AD and VM configuration steps?"
 }
 
+variable "configure_via_local" {
+  type  = bool
+  default = false
+  description = "Do you want Terraform to run AD and VM configuration steps?"
+}
+
 variable "create_dns" {
   type  = bool
   default = false
