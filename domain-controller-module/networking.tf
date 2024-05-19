@@ -62,7 +62,9 @@ resource "azurerm_virtual_network_peering" "dc_vnet_to_existing" {
   resource_group_name          = var.resource_group_name
   virtual_network_name         = azurerm_virtual_network.dc_vnet.name
   remote_virtual_network_id    = data.azurerm_virtual_network.existing_vnet.id
-  allow_virtual_network_access = true # disallow internet access into "vnet"
+  allow_virtual_network_access = true
+
+  depends_on = [ azurerm_virtual_network.dc_vnet ]
 }
 
 # Create VNet Peering from "Candidate-2731-vnet" to "dc_vnet"
@@ -72,6 +74,8 @@ resource "azurerm_virtual_network_peering" "existing_to_dc_vnet" {
   virtual_network_name         = data.azurerm_virtual_network.existing_vnet.name
   remote_virtual_network_id    = azurerm_virtual_network.dc_vnet.id
   allow_virtual_network_access = true # allow communication between VNets
+
+  depends_on = [ azurerm_virtual_network.dc_vnet ]
 }
 
 # NSG to subnet association

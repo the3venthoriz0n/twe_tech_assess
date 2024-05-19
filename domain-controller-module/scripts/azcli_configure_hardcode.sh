@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+echo "Init disks..."
+
 # Add Data Disks and Initialize Disks (login to each VM and run these scripts)
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-0" --command-id RunPowerShellScript --scripts '
     Initialize-Disk -Number 2 -PartitionStyle MBR -PassThru | New-Partition -DriveLetter F -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel "DataDisk"
@@ -17,7 +20,7 @@ az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-1"
 # '
 
 
-
+echo "Installing AD DS..."
 
 # Install AD DS on the first VM and create a new forest
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-0" --command-id RunPowerShellScript --scripts '
@@ -25,6 +28,8 @@ az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-0"
     Import-Module ADDSDeployment
     Install-ADDSForest -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$false -DatabasePath "F:\Windows\NTDS" -DomainMode "7" -DomainNetbiosName "TWE" -ForestMode "7" -InstallDns:$true -LogPath "F:\Windows\NTDS" -NoRebootOnCompletion:$true -SysvolPath "F:\Windows\SYSVOL" -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString "changeMe123!@#" -AsPlainText -Force)
 '
+
+echo "Joining domain on second dc..."
 
 # Install AD DS on the second VM and join the existing forest
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-1" --command-id RunPowerShellScript --scripts '
@@ -34,6 +39,7 @@ az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-1"
 '
 
 
+echo "Setting time servers..."
 
 az vm run-command invoke --resource-group "Candidate-2731" --name "2731-tf-dc-0" --command-id RunPowerShellScript --scripts '
 
@@ -73,9 +79,15 @@ Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -N
 
 '
 
+echo "Rebooting vms..."
 # Reboot vms
 az vm restart -g "Candidate-2731" -n "2731-tf-dc-0"
 
 # Reboot vms
 az vm restart -g "Candidate-2731" -n "2731-tf-dc-1"
 
+
+
+# Exit the script
+echo "Exiting..."
+exit 0
