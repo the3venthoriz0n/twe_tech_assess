@@ -1,1 +1,0 @@
-Add-WindowsFeature Adcs-Cert-Authority -IncludeManagementTools Install-AdcsCertificationAuthority –CAType StandaloneRootCA –CACommonName "ContosoRootCA" –KeyLength 2048 –HashAlgorithm SHA1 –CryptoProviderName "RSA#Microsoft Software Key Storage Provider"

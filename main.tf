@@ -51,8 +51,8 @@ module "ad" {
   subnet_name             = "${var.resource_group_name}-tf-snet"
   subnet_address_prefixes = ["10.2.1.0/24"]
   nsg_name                = "${var.resource_group_name}-tf-nsg"
-  configure               = false # storage and other configurations
   configure_via_local     = false # local provisioner
+  configure               = false # storage and other configuration
   create_dns              = false
 }
 
@@ -67,3 +67,4 @@ module "vdi" {
   ad_admin_password = var.ad_admin_password
 
 }
+
