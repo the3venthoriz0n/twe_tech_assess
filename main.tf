@@ -1,4 +1,3 @@
-
 # Provider Configuration
 provider "azurerm" {
   features {}
@@ -14,6 +13,12 @@ variable "admin_password" {
 
 variable "ad_admin_password" {
   description = "Password for AD Administrator"
+  type        = string
+  sensitive   = true
+}
+
+variable "vdi_password" {
+  description = "Password for vdi"
   type        = string
   sensitive   = true
 }
@@ -53,6 +58,7 @@ module "ad" {
 
 
 module "vdi" {
+  count = 0
   source = "./modules/vdi"
 
   # Input Variables

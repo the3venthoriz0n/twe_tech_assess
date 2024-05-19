@@ -37,7 +37,7 @@ resource "azurerm_virtual_desktop_application_group" "app_group" {
   resource_group_name = var.rg_name
   host_pool_id        = azurerm_virtual_desktop_host_pool.host_pool.id
   location            = var.location
-  type                = "RemoteDesktop"
+  type                = "Desktop"
   friendly_name       = "App Group"
 }
 
