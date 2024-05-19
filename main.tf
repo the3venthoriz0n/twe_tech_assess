@@ -30,8 +30,8 @@ locals {
 }
 
 
-module "domain_controllers" {
-  source = "./domain-controller-module"
+module "ad" {
+  source = "./modules/ad"
 
   # Input Variables
 
@@ -49,4 +49,15 @@ module "domain_controllers" {
   configure               = false # storage and other configurations
   configure_via_local     = false # local provisioner
   create_dns              = false
+}
+
+
+module "vdi" {
+  source = "./modules/vdi"
+
+  # Input Variables
+
+  vdi_password      = var.vdi_password
+  ad_admin_password = var.ad_admin_password
+
 }

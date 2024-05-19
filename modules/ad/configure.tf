@@ -15,6 +15,7 @@
 
 resource "null_resource" "upload_and_execute_script" {
   count            = var.configure_via_local ? 2 : 0
+
   # Use triggers to force the provisioners to run whenever the file changes
   triggers = {
     always_run = "${timestamp()}"
@@ -38,6 +39,7 @@ resource "null_resource" "upload_and_execute_script" {
 
   # Use the remote-exec provisioner to execute the PowerShell script
   provisioner "remote-exec" {
+    on_failure = fail
     inline = [
       "powershell.exe -ExecutionPolicy Bypass -File C:/temp/psConfigure.ps1 ${var.resource_group_name} ${azurerm_windows_virtual_machine.dc[count.index].name} ${var.domain_name} ${var.ad_admin_password}"
     ]
