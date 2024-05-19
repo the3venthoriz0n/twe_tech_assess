@@ -46,7 +46,7 @@ module "domain_controllers" {
   subnet_name             = "${var.resource_group_name}-tf-snet"
   subnet_address_prefixes = ["10.2.1.0/24"]
   nsg_name                = "${var.resource_group_name}-tf-nsg"
-  configure               = false
-  configure_via_local     = true
+  configure               = false # storage and other configurations
+  configure_via_local     = false # local provisioner
   create_dns              = false
 }
