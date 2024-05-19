@@ -82,6 +82,7 @@ resource "azurerm_virtual_network_peering" "existing_to_dc_vnet" {
 resource "azurerm_subnet_network_security_group_association" "sub_nsg_association" {
   subnet_id                 = azurerm_subnet.dc_subnet.id
   network_security_group_id = azurerm_network_security_group.dc_nsg.id
+  depends_on = [ azurerm_subnet.dc_subnet, azurerm_network_security_group.dc_nsg ]
 }
 
 # NSG to nic association
@@ -89,6 +90,7 @@ resource "azurerm_network_interface_security_group_association" "nic_nsg_associa
   count                     = 2
   network_interface_id      = azurerm_network_interface.nic[count.index].id
   network_security_group_id = azurerm_network_security_group.dc_nsg.id
+  depends_on = [ azurerm_subnet.dc_subnet, azurerm_network_security_group.dc_nsg ]
 }
 
 

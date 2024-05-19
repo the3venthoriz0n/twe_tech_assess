@@ -1,67 +1,52 @@
-
-# # Local-exec provisioner to run a bash script
-# resource "null_resource" "local_exec_script" {
-#   count                = var.configure_via_local ? 2 : 0 # Change to 1 if running hardcode
-#   provisioner "local-exec" {
-#     # command = "bash ${path.module}/scripts/azcli_configure_hardcode.sh"
-#     command = "bash ${path.module}/scripts/azcli_configure.sh ${var.resource_group_name} ${azurerm_windows_virtual_machine.dc[count.index].name} ${var.domain_name} ${var.ad_admin_password}"
-
-#   }
-
-#   depends_on = [ azurerm_windows_virtual_machine.dc ]
-# }
-
-resource "azurerm_virtual_machine_extension" "winrm" {
-  count            = var.configure_via_local ? 2 : 0
-  name                 = "winrm-extension-${count.index}"
-  virtual_machine_id   = azurerm_windows_virtual_machine.dc[count.index].id
+# Install ADDS and configure dc0
+resource "azurerm_virtual_machine_extension" "dc0_extension" {
+  name                 = "configure-dc0"
+  virtual_machine_id   = azurerm_windows_virtual_machine.dc[0].id
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
-
-  settings = <<SETTINGS
+  protected_settings = <<SETTINGS
   {
-    "script": "powershell -ExecutionPolicy Unrestricted -Command \"winrm quickconfig -q; winrm set winrm/config/service '@{AllowUnencrypted=\"true\"}'; winrm set winrm/config/service/auth '@{Basic=\"true\"}'; \$cert = New-SelfSignedCertificate -DnsName 'localhost' -CertStoreLocation 'Cert:\\LocalMachine\\My'; \$thumbprint = \$cert.Thumbprint; winrm create winrm/config/Listener?Address=*+Transport=HTTPS '@{Hostname='*'; CertificateThumbprint='\$thumbprint'}'; New-NetFirewallRule -DisplayName 'WinRM over HTTPS' -Name 'WinRM-HTTPS' -Protocol TCP -LocalPort 5986 -Action Allow\""
+    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc0_file.rendered)}')) | Out-File -filepath C:\\local_config_dc0.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc0.ps1 -Force"
   }
   SETTINGS
 
-  depends_on = [ azurerm_windows_virtual_machine.dc ]
-}
 
-resource "null_resource" "upload_and_execute_script" {
-  count            = var.configure_via_local ? 2 : 0
-
-  # Use triggers to force the provisioners to run whenever the file changes
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-
-  # Define connection details for the remote-exec provisioner
-  connection {
-    type        = "winrm"
-    user        = var.admin_username
-    password    = var.admin_password
-    host        = azurerm_windows_virtual_machine.dc[count.index].private_ip_address
-    port        = 5986
-    timeout     = "10m"
-  }
-
-  # Use the file provisioner to upload the PowerShell script
-  provisioner "file" {
-    source      = "${path.module}/scripts/remote_configure.ps1"
-    destination = "C:/temp/remote_configure.ps1"
-  }
-
-  # Use the remote-exec provisioner to execute the PowerShell script
-  provisioner "remote-exec" {
-    on_failure = fail
-    inline = [
-      "powershell.exe -ExecutionPolicy Bypass -File C:/temp/remote_configure.ps1 ${azurerm_windows_virtual_machine.dc[count.index].name} ${var.domain_name} ${var.admin_username} ${var.admin_password} ${var.ad_admin_password}"
-    ]
-  }
-
-  depends_on = [ azurerm_virtual_machine_extension.winrm, azurerm_windows_virtual_machine.dc ]
+  depends_on = [azurerm_windows_virtual_machine.dc]
 }
 
 
+data "template_file" "dc0_file" {
+    template = "${file("${path.module}/scripts/local_config_dc0.ps1")}"
+  #   vars = {
+  #       Domain_DNSName          = "${var.Domain_DNSName}"
+  #       Domain_NETBIOSName      = "${var.netbios_name}"
+  #       SafeModeAdministratorPassword = "${var.SafeModeAdministratorPassword}"
+  # }
+}
 
+# Install ADDS and configure dc1
+resource "azurerm_virtual_machine_extension" "dc1_extension" {
+  name                 = "configure-dc1"
+  virtual_machine_id   = azurerm_windows_virtual_machine.dc[1].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+  protected_settings = <<SETTINGS
+  {
+    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc1_file.rendered)}')) | Out-File -filepath C:\\local_config_dc1.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc1.ps1 -Force"
+  }
+  SETTINGS
+
+
+  depends_on = [azurerm_windows_virtual_machine.dc, azurerm_virtual_machine_extension.dc0_extension]
+}
+
+data "template_file" "dc1_file" {
+    template = "${file("${path.module}/scripts/local_config_dc1.ps1")}"
+  #   vars = {
+  #       Domain_DNSName          = "${var.Domain_DNSName}"
+  #       Domain_NETBIOSName      = "${var.netbios_name}"
+  #       SafeModeAdministratorPassword = "${var.SafeModeAdministratorPassword}"
+  # }
+}

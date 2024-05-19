@@ -51,14 +51,14 @@ module "ad" {
   subnet_name             = "${var.resource_group_name}-tf-snet"
   subnet_address_prefixes = ["10.2.1.0/24"]
   nsg_name                = "${var.resource_group_name}-tf-nsg"
-  configure_via_local     = false # local provisioner
+  configure_via_local     = true  # locally on vm provisioner
   configure               = false # storage and other configuration
   create_dns              = false
 }
 
 
 module "vdi" {
-  count = 0
+  count  = 0
   source = "./modules/vdi"
 
   # Input Variables

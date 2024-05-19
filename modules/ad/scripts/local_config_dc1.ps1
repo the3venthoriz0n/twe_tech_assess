@@ -91,6 +91,18 @@ Restart-Service w32time
 Set-TimeZone -Id "Pacific Standard Time"
 
 
+#FOR TESTING
+$filePath = "C:\DONE.txt"
+
+# Create an empty file and overwrite if it exists
+try {
+    $null | Out-File -FilePath $filePath -Force -Encoding ascii
+    Write-Output "File created or overwritten."
+} catch {
+    Write-Output "Failed to create or overwrite file: $_"
+}
+
+
 # Reboot vms
 Write-Host "Rebooting vms..."
 Restart-Computer -Force

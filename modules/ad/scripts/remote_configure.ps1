@@ -129,9 +129,10 @@ Restart-Service w32time
 # Set PST
 Set-TimeZone -Id "Pacific Standard Time"
 
-Write-Host "Rebooting vms..."
+
 
 # Reboot vms
+Write-Host "Rebooting vms..."
 Restart-Computer -Force
 
 # Exit the script
