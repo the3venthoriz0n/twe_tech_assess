@@ -56,14 +56,3 @@ module "ad" {
 }
 
 
-module "vdi" {
-  count  = 0
-  source = "./modules/vdi"
-
-  # Input Variables
-
-  vdi_password      = var.vdi_password
-  ad_admin_password = var.admin_password
-
-}
-

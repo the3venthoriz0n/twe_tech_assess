@@ -15,7 +15,7 @@ resource "azurerm_virtual_machine_extension" "dc0_extension" {
 
   protected_settings = <<SETTINGS
   {
-    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc0_file.rendered)}')) | Out-File -filepath C:\\local_config_dc0.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc0.ps1 -DsrmPassword ${data.template_file.dc0_file.vars.dsrm_password} -DomainName ${data.template_file.dc0_file.vars.domain_name} -Force"
+    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc0_file.rendered)}')) | Out-File -filepath C:\\local_config_dc0.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc0.ps1 -DsrmPassword ${data.template_file.dc0_file.vars.dsrm_password} -DomainName ${data.template_file.dc0_file.vars.domain_name}"
   }
   SETTINGS
 
@@ -42,14 +42,14 @@ resource "azurerm_virtual_machine_extension" "dc1_extension" {
   type_handler_version = "1.10"
   
   timeouts {
-    create = "10m"
+    create = "15m"
     update = "10m"
     delete = "10m"
   }
 
   protected_settings = <<SETTINGS
   {
-    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc1_file.rendered)}')) | Out-File -filepath C:\\local_config_dc1.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc1.ps1 -AdminUsername ${data.template_file.dc1_file.vars.admin_username} -AdminPassword ${data.template_file.dc1_file.vars.admin_password} -DomainName ${data.template_file.dc1_file.vars.domain_name} -Force"
+    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.dc1_file.rendered)}')) | Out-File -filepath C:\\local_config_dc1.ps1\" && powershell -ExecutionPolicy Unrestricted -File C:\\local_config_dc1.ps1 -AdminUsername ${data.template_file.dc1_file.vars.admin_username} -AdminPassword ${data.template_file.dc1_file.vars.admin_password} -DomainName ${data.template_file.dc1_file.vars.domain_name}"
   }
   SETTINGS
 

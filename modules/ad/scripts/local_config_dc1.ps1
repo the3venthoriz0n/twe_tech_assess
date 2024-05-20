@@ -14,13 +14,14 @@ param (
     [string]$DomainName
 )
 
-Write-Host "Init disks..."
+
 
 # Get the disk
 $disk = Get-Disk -Number 2
 
 # Check if the disk is already initialized by checking if it has any partitions
 if ($disk.PartitionStyle -eq 'RAW') {
+    Write-Host "Init disks..."
     # Disk is not initialized, proceed with initialization
     Initialize-Disk -Number 2 -PartitionStyle MBR -PassThru | New-Partition -DriveLetter F -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel "DataDisk"
     Write-Output "Disk 2 has been initialized and formatted."
@@ -70,6 +71,7 @@ else {
 }
 
 
+try  {
 
 Write-Output "Installing AD DS and configuring the domain controller..."
 
@@ -80,26 +82,37 @@ Install-ADDSDomainController -DomainName $DomainName -CreateDnsDelegation:$false
     -SysvolPath "F:\Windows\SYSVOL" -NoRebootOnCompletion:$true -Force:$true
 
 
+}catch{
+    Write-Output "Something went wrong installing AD..."
+}
+
+
+try {
+    Write-Host "Setting time servers..."
+
+    # Set NTP Server
+    $ntpServer = "time.windows.com"
+
+    # Configure NTP Settings
+    w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
+
+    # # Restart the Windows Time Service
+    # Restart-Service w32time
+
+    # Set automatic timezone
+    # Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
+
+    # Set PST
+    Set-TimeZone -Id "Pacific Standard Time"
 
 
 
+}catch{
 
-Write-Host "Setting time servers..."
+    Write-Host "Something went wrong setting time servers..."
 
-# Set NTP Server
-$ntpServer = "time.windows.com"
+}
 
-# Configure NTP Settings
-w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
-
-# # Restart the Windows Time Service
-# Restart-Service w32time
-
-# Set automatic timezone
-# Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
-
-# Set PST
-Set-TimeZone -Id "Pacific Standard Time"
 
 
 #FOR TESTING

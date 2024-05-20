@@ -4,7 +4,7 @@ param (
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]$DsrmPassword,
-    
+
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]$DomainName
@@ -82,24 +82,31 @@ catch {
 }
 
 
+try {
+    Write-Host "Setting time servers..."
 
-Write-Host "Setting time servers..."
+    # Set NTP Server
+    $ntpServer = "time.windows.com"
 
-# Set NTP Server
-$ntpServer = "time.windows.com"
+    # Configure NTP Settings
+    w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
 
-# Configure NTP Settings
-w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
+    # # Restart the Windows Time Service
+    # Restart-Service w32time
 
-# # Restart the Windows Time Service
-# Restart-Service w32time
+    # Set automatic timezone
+    # Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
 
-# Set automatic timezone
-# Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
+    # Set PST
+    Set-TimeZone -Id "Pacific Standard Time"
 
-# Set PST
-Set-TimeZone -Id "Pacific Standard Time"
 
+
+}catch{
+
+    Write-Host "Something went wrong setting time servers..."
+
+}
 
 #FOR TESTING
 $filePath = "C:\DONE.txt"
@@ -111,7 +118,6 @@ try {
 } catch {
     Write-Output "Failed to create or overwrite file: $_"
 }
-
 
 
 # Reboot vms

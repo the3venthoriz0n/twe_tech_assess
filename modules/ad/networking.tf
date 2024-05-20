@@ -131,7 +131,7 @@ resource "azurerm_network_security_group" "dc_nsg" {
    direction                  = "Inbound"
    access                     = "Allow"
    protocol                   = "Udp"
-   source_port_range          = "49152-65535"
+   source_port_range          = "*" # Azure portal recommendation, instead of 49152-65535
    destination_port_range     = "123"
    source_address_prefix      = "VirtualNetwork"
    destination_address_prefix = "VirtualNetwork"
