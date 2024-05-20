@@ -1,6 +1,18 @@
 #$ErrorActionPreference = "Stop"
 
+param (
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$AdminUsername,
 
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$AdminPassword,
+
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$DomainName
+)
 
 Write-Host "Init disks..."
 
@@ -60,11 +72,10 @@ else {
 
 
 Write-Output "Installing AD DS and configuring the domain controller..."
-$domain = "twe-tech-assess.local"
 
-Install-ADDSDomainController -DomainName $domain -CreateDnsDelegation:$false `
-    -Credential (New-Object System.Management.Automation.PSCredential("twe_admin@twe-tech-assess.local", `
-        (ConvertTo-SecureString "7NCdqcp189774r&uRLmE@32uU" -AsPlainText -Force))) `
+Install-ADDSDomainController -DomainName $DomainName -CreateDnsDelegation:$false `
+    -Credential (New-Object System.Management.Automation.PSCredential("$AdminUsername@$DomainName", `
+    (ConvertTo-SecureString $AdminPassword -AsPlainText -Force))) `
     -DatabasePath "F:\Windows\NTDS" -LogPath "F:\Windows\NTDS" `
     -SysvolPath "F:\Windows\SYSVOL" -NoRebootOnCompletion:$true -Force:$true
 
@@ -81,8 +92,8 @@ $ntpServer = "time.windows.com"
 # Configure NTP Settings
 w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
 
-# Restart the Windows Time Service
-Restart-Service w32time
+# # Restart the Windows Time Service
+# Restart-Service w32time
 
 # Set automatic timezone
 # Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
@@ -104,7 +115,7 @@ try {
 
 
 # Reboot vms
-Write-Host "Rebooting vms..."
+Write-Host "Rebooting vm..."
 Restart-Computer -Force
 
 # Exit the script

@@ -18,7 +18,7 @@ variable "admin_password" {
   sensitive = true
 }
 
-variable "ad_admin_password" {
+variable "dsrm_password" {
   type      = string
   sensitive = true
 }

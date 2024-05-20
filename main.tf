@@ -6,13 +6,13 @@ provider "azurerm" {
 
 
 variable "admin_password" {
-  description = "Local password for admin"
+  description = "Local password for the administrator"
   type        = string
   sensitive   = true
 }
 
-variable "ad_admin_password" {
-  description = "Password for AD Administrator"
+variable "dsrm_password" {
+  description = "Password for DSRM"
   type        = string
   sensitive   = true
 }
@@ -42,7 +42,7 @@ module "ad" {
 
   resource_group_name     = "Candidate-2731" #existing resource group
   admin_password          = var.admin_password
-  ad_admin_password       = var.ad_admin_password
+  dsrm_password           = var.dsrm_password
   vm_name_prefix          = local.resource_group_number
   availability_set_name   = "${var.resource_group_name}-tf-avs"
   domain_name             = "twe-tech-assess.local"
@@ -53,7 +53,6 @@ module "ad" {
   nsg_name                = "${var.resource_group_name}-tf-nsg"
   configure_via_local     = true  # locally on vm provisioner
   configure               = false # storage and other configuration
-  create_dns              = false
 }
 
 
@@ -64,7 +63,7 @@ module "vdi" {
   # Input Variables
 
   vdi_password      = var.vdi_password
-  ad_admin_password = var.ad_admin_password
+  ad_admin_password = var.admin_password
 
 }
 

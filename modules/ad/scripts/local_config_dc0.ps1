@@ -1,6 +1,14 @@
 #$ErrorActionPreference = "Stop"
 
-
+param (
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$DsrmPassword,
+    
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$DomainName
+)
 
 Write-Host "Init disks..."
 
@@ -66,11 +74,11 @@ try {
 catch {
     Write-Output "The forest does not exist. Creating a new forest..."
     # Create a new AD DS forest
-    Install-ADDSForest -DomainName "twe-tech-assess.local" -CreateDnsDelegation:$false `
+    Install-ADDSForest -DomainName $DomainName -CreateDnsDelegation:$false `
         -DatabasePath "F:\Windows\NTDS" -DomainMode "7" -DomainNetbiosName "TWE" `
         -ForestMode "7" -InstallDns:$true -LogPath "F:\Windows\NTDS" `
         -NoRebootOnCompletion:$true -SysvolPath "F:\Windows\SYSVOL" `
-        -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString "tempPassword123!@#" -AsPlainText -Force)
+        -Force:$true -SafeModeAdministratorPassword (ConvertTo-SecureString $DsrmPassword -AsPlainText -Force)
 }
 
 
@@ -83,8 +91,8 @@ $ntpServer = "time.windows.com"
 # Configure NTP Settings
 w32tm /config /manualpeerlist:$ntpServer /syncfromflags:manual /reliable:YES /update
 
-# Restart the Windows Time Service
-Restart-Service w32time
+# # Restart the Windows Time Service
+# Restart-Service w32time
 
 # Set automatic timezone
 # Set-ItemProperty -path "HKLM:\SYSTEM\CurrentControlSet\Services\tzautoupdate" -Name Start -Value 3
@@ -107,7 +115,7 @@ try {
 
 
 # Reboot vms
-Write-Host "Rebooting vms..."
+Write-Host "Rebooting vm..."
 Restart-Computer -Force
 
 # Exit the script
