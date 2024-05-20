@@ -73,6 +73,8 @@ else {
 
 try  {
 
+#TODO fix provisioning bug, add more logic
+
 Write-Output "Installing AD DS and configuring the domain controller..."
 
 Install-ADDSDomainController -DomainName $DomainName -CreateDnsDelegation:$false `
