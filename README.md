@@ -1,2 +1,4 @@
-# twe_tech_assess
-Technical assessment for TWE
+# TWE Technical Assessment
+Andrew Kaplan
+andrewkpln@gmail.com
+
